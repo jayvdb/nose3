@@ -37,6 +37,8 @@ class TestCoveragePlugin(object):
 
         def get_config_files(cov_info):
             cov_info = dict(cov_info)
+            if 'configs_attempted' in cov_info:
+                return cov_info['configs_attempted']
             if 'config_files' in cov_info:
                 return cov_info['config_files']
             return None
