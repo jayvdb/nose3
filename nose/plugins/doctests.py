@@ -49,6 +49,7 @@ test.
 """
 from __future__ import generators
 
+import codecs
 import logging
 import os
 import sys
@@ -259,7 +260,7 @@ class Doctest(Plugin):
         """
         if self.extension and anyp(filename.endswith, self.extension):
             name = os.path.basename(filename)
-            dh = open(filename)
+            dh = codecs.open(filename, encoding='utf-8')
             try:
                 doc = dh.read()
             finally:
