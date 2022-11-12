@@ -82,13 +82,15 @@ class LazySuite(unittest.TestSuite):
         if self.test_generator is None:
             return False
         try:
-            test = self.test_generator.next()
+            test = next(self.test_generator)
             if test is not None:
                 self._precache.append(test)
                 return True
         except StopIteration:
             pass
         return False
+
+    __bool__ = __nonzero__
 
     def _get_tests(self):
         log.debug("precache is %s", self._precache)

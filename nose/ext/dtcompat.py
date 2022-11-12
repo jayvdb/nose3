@@ -51,6 +51,8 @@ of doctest's default behaviors.  See the Library Reference Manual for
 details.
 """
 
+from nose.pyversion import string_types, text_type
+
 __docformat__ = 'reStructuredText en'
 
 __all__ = [
@@ -104,7 +106,12 @@ import __future__
 import sys, traceback, inspect, linecache, os, re
 import unittest, difflib, pdb, tempfile
 import warnings
-from StringIO import StringIO
+try:
+    # cStringIO doesn't support unicode in 2.5
+    from StringIO import StringIO
+except ImportError:
+    # StringIO has been renamed to 'io' in 3.x
+    from io import StringIO
 
 # Don't whine about the deprecated is_private function in this
 # module's tests.
@@ -219,7 +226,7 @@ def _normalize_module(module, depth=2):
     """
     if inspect.ismodule(module):
         return module
-    elif isinstance(module, (str, unicode)):
+    elif isinstance(module, text_type):
         return __import__(module, globals(), locals(), ["*"])
     elif module is None:
         return sys.modules[sys._getframe(depth).f_globals['__name__']]
@@ -341,9 +348,9 @@ class _OutputRedirectingPdb(pdb.Pdb):
 # [XX] Normalize with respect to os.path.pardir?
 def _module_relative_path(module, path):
     if not inspect.ismodule(module):
-        raise TypeError, 'Expected a module: %r' % module
+        raise TypeError('Expected a module: %r' % module)
     if path.startswith('/'):
-        raise ValueError, 'Module-relative files may not have absolute paths'
+        raise ValueError('Module-relative files may not have absolute paths')
 
     # Find the base directory for the path.
     if hasattr(module, '__file__'):
@@ -457,7 +464,7 @@ class DocTest:
         Create a new DocTest containing the given examples.  The
         DocTest's globals are initialized with a copy of `globs`.
         """
-        assert not isinstance(examples, basestring), \
+        assert not isinstance(examples, string_types), \
                "DocTest no longer accepts str; use DocTestParser instead"
         self.examples = examples
         self.docstring = docstring
@@ -856,7 +863,10 @@ class DocTestFinder:
         if module is None:
             return True
         elif inspect.isfunction(object):
-            return module.__dict__ is object.func_globals
+            try:
+                return module.__dict__ is object.func_globals
+            except AttributeError:
+                return module.__dict__ is object.__globals__
         elif inspect.isclass(object):
             # Some jython classes don't set __module__
             return module.__name__ == getattr(object, '__module__', None)
@@ -875,7 +885,7 @@ class DocTestFinder:
         add them to `tests`.
         """
         if self._verbose:
-            print 'Finding tests in %s' % name
+            print('Finding tests in %s' % name)
 
         # If we've already processed this object, then ignore it.
         if id(obj) in seen:
@@ -903,13 +913,13 @@ class DocTestFinder:
         # Look for tests in a module's __test__ dictionary.
         if inspect.ismodule(obj) and self._recurse:
             for valname, val in getattr(obj, '__test__', {}).items():
-                if not isinstance(valname, basestring):
+                if not isinstance(valname, string_types):
                     raise ValueError("DocTestFinder.find: __test__ keys "
                                      "must be strings: %r" %
                                      (type(valname),))
                 if not (inspect.isfunction(val) or inspect.isclass(val) or
                         inspect.ismethod(val) or inspect.ismodule(val) or
-                        isinstance(val, basestring)):
+                        isinstance(val, string_types)):
                     raise ValueError("DocTestFinder.find: __test__ values "
                                      "must be strings, functions, methods, "
                                      "classes, or modules: %r" %
@@ -928,7 +938,10 @@ class DocTestFinder:
                 if isinstance(val, staticmethod):
                     val = getattr(obj, valname)
                 if isinstance(val, classmethod):
-                    val = getattr(obj, valname).im_func
+                    try:
+                        val = getattr(obj, valname).im_func
+                    except AttributeError:
+                        val = getattr(obj, valname).__func__
 
                 # Recurse to methods, properties, and nested classes.
                 if ((inspect.isfunction(val) or inspect.isclass(val) or
@@ -945,7 +958,7 @@ class DocTestFinder:
         """
         # Extract the object's docstring.  If it doesn't have one,
         # then return None (no test for this object).
-        if isinstance(obj, basestring):
+        if isinstance(obj, string_types):
             docstring = obj
         else:
             try:
@@ -953,7 +966,7 @@ class DocTestFinder:
                     docstring = ''
                 else:
                     docstring = obj.__doc__
-                    if not isinstance(docstring, basestring):
+                    if not isinstance(docstring, string_types):
                         docstring = str(docstring)
             except (TypeError, AttributeError):
                 docstring = ''
@@ -1003,8 +1016,16 @@ class DocTestFinder:
                     break
 
         # Find the line number for functions & methods.
-        if inspect.ismethod(obj): obj = obj.im_func
-        if inspect.isfunction(obj): obj = obj.func_code
+        if inspect.ismethod(obj):
+            try:
+                obj = obj.im_func
+            except AttributeError:
+                obj = obj.__func__
+        if inspect.isfunction(obj):
+            try:
+                obj = obj.func_code
+            except AttributeError:
+                obj = obj.__code__
         if inspect.istraceback(obj): obj = obj.tb_frame
         if inspect.isframe(obj): obj = obj.f_code
         if inspect.iscode(obj):
@@ -1143,7 +1164,7 @@ class DocTestRunner:
         # to modify them).
         original_optionflags = self.optionflags
 
-        SUCCESS, FAILURE, BOOM = range(3) # `outcome` state
+        SUCCESS, FAILURE, BOOM = list(range(3)) # `outcome` state
 
         check = self._checker.check_output
 
@@ -1179,8 +1200,8 @@ class DocTestRunner:
             # keyboard interrupts.)
             try:
                 # Don't blink!  This is where the user's code gets run.
-                exec compile(example.source, filename, "single",
-                             compileflags, 1) in test.globs
+                exec(compile(example.source, filename, "single",
+                             compileflags, 1), test.globs)
                 self.debugger.set_continue() # ==== Example Finished ====
                 exception = None
             except KeyboardInterrupt:
@@ -1354,28 +1375,28 @@ class DocTestRunner:
                 failed.append(x)
         if verbose:
             if notests:
-                print len(notests), "items had no tests:"
+                print(len(notests), "items had no tests:")
                 notests.sort()
                 for thing in notests:
-                    print "   ", thing
+                    print("   ", thing)
             if passed:
-                print len(passed), "items passed all tests:"
+                print(len(passed), "items passed all tests:")
                 passed.sort()
                 for thing, count in passed:
-                    print " %3d tests in %s" % (count, thing)
+                    print(" %3d tests in %s" % (count, thing))
         if failed:
-            print self.DIVIDER
-            print len(failed), "items had failures:"
+            print(self.DIVIDER)
+            print(len(failed), "items had failures:")
             failed.sort()
             for thing, (f, t) in failed:
-                print " %3d of %3d in %s" % (f, t, thing)
+                print(" %3d of %3d in %s" % (f, t, thing))
         if verbose:
-            print totalt, "tests in", len(self._name2ft), "items."
-            print totalt - totalf, "passed and", totalf, "failed."
+            print(totalt, "tests in", len(self._name2ft), "items.")
+            print(totalt - totalf, "passed and", totalf, "failed.")
         if totalf:
-            print "***Test Failed***", totalf, "failures."
+            print("***Test Failed***", totalf, "failures.")
         elif verbose:
-            print "Test passed."
+            print("Test passed.")
         return totalf, totalt
 
     #/////////////////////////////////////////////////////////////////
@@ -1385,8 +1406,8 @@ class DocTestRunner:
         d = self._name2ft
         for name, (f, t) in other._name2ft.items():
             if name in d:
-                print "*** DocTestRunner.merge: '" + name + "' in both" \
-                    " testers; summing outcomes."
+                print("*** DocTestRunner.merge: '" + name + "' in both"
+                      " testers; summing outcomes.")
                 f2, t2 = d[name]
                 f = f + f2
                 t = t + t2
@@ -1875,10 +1896,10 @@ class Tester:
     def runstring(self, s, name):
         test = DocTestParser().get_doctest(s, self.globs, name, None, None)
         if self.verbose:
-            print "Running string", name
+            print("Running string", name)
         (f,t) = self.testrunner.run(test)
         if self.verbose:
-            print f, "of", t, "examples failed in string", name
+            print(f, "of", t, "examples failed in string", name)
         return (f,t)
 
     def rundoc(self, object, name=None, module=None):
@@ -2245,9 +2266,9 @@ def debug_script(src, pm=False, globs=None):
 
         if pm:
             try:
-                execfile(srcfilename, globs, globs)
+                exec(compile(open(srcfilename, "rb").read(), srcfilename, 'exec'), globs, globs)
             except:
-                print sys.exc_info()[1]
+                print(sys.exc_info()[1])
                 pdb.post_mortem(sys.exc_info()[2])
         else:
             # Note that %r is vital here.  '%s' instead can, e.g., cause

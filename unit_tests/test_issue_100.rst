@@ -8,5 +8,8 @@ for a case defined in a doctest.
     ...     def runTest(self):
     ...         pass
     >>> test = nose.case.Test(SimpleTest())
-    >>> test.address()
-    (None, '__builtin__', 'SimpleTest.runTest')
+    >>> test.address()[0]
+    >>> test.address()[1] in ('builtins', '__builtin__')
+    True
+    >>> test.address()[2]
+    'SimpleTest.runTest'

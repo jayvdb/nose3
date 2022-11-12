@@ -1,6 +1,11 @@
 import os
 import unittest
-from cStringIO import StringIO
+try:
+    # cStringIO doesn't support unicode in 2.5
+    from StringIO import StringIO
+except ImportError:
+    # StringIO has been renamed to 'io' in 3.x
+    from io import StringIO
 from nose.core import TestProgram
 from nose.config import Config
 from nose.result import _TextTestResult
@@ -27,7 +32,7 @@ class TestBuggyGenerators(unittest.TestCase):
             config=Config(),
             exit=False)
         res = runner.result
-        print stream.getvalue()
+        print(stream.getvalue())
         self.assertEqual(res.testsRun, 12,
                          "Expected to run 12 tests, ran %s" % res.testsRun)
         assert not res.wasSuccessful()

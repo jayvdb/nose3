@@ -13,7 +13,7 @@ class TestIssue230(unittest.TestCase):
 
         loader = TestLoader()
         suite = loader.loadTestsFromGenerator(gen, module=None)
-        testcase = iter(suite).next()
+        testcase = next(iter(suite))
         self.assertEqual(testcase.test.test, test)
 
 

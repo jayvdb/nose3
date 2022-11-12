@@ -1,11 +1,12 @@
 import unittest
 import pdb
 import sys
+from mock import ResultProxyFactory, ResultProxy
+
 import nose.case
 import nose.failure
-from nose.pyversion import unbound_method
+from nose.pyversion import _add_metaclass, unbound_method
 from nose.config import Config
-from mock import ResultProxyFactory, ResultProxy
 
 class TestNoseCases(unittest.TestCase):
 
@@ -40,6 +41,7 @@ class TestNoseCases(unittest.TestCase):
             def __new__(cls, name, bases, dct):
                 return type.__new__(cls, name, bases, dct)
         a = []
+        @_add_metaclass(TestType)
         class TestClass(object):
             __metaclass__ = TestType
             def test_func(self, a=a):
@@ -164,13 +166,13 @@ class TestNoseTestWrapper(unittest.TestCase):
                         
         class TC(unittest.TestCase):
             def setUp(self):
-                print "TC setUp %s" % self
+                print("TC setUp %s" % self)
                 called.append('setUp')
             def runTest(self):
-                print "TC runTest %s" % self
+                print("TC runTest %s" % self)
                 called.append('runTest')
             def tearDown(self):
-                print "TC tearDown %s" % self
+                print("TC tearDown %s" % self)
                 called.append('tearDown')
 
         case = nose.case.Test(TC())

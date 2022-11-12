@@ -118,7 +118,7 @@ def attr(*args, **kwargs):
     def wrap_ob(ob):
         for name in args:
             setattr(ob, name, True)
-        for name, value in kwargs.iteritems():
+        for name, value in kwargs.items():
             setattr(ob, name, value)
         return ob
     return wrap_ob
@@ -282,5 +282,8 @@ class AttributeSelector(Plugin):
         try:
             cls = method.im_class
         except AttributeError:
-            return False
+            try:
+                cls = method.__self__.__class__
+            except AttributeError:
+                return False
         return self.validateAttrib(method, cls)

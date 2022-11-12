@@ -1,2 +1,2 @@
 def moo():
-    print 'covered'
+    print('covered')

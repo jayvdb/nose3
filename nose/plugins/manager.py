@@ -66,7 +66,7 @@ except:
 try:
     from cStringIO import StringIO
 except:
-    from StringIO import StringIO
+    from io import StringIO
 
 
 __all__ = ['DefaultPluginManager', 'PluginManager', 'EntryPointPluginManager',
@@ -104,8 +104,12 @@ class PluginProxy(object):
         """
         meth = getattr(plugin, call, None)
         if meth is not None:
+            try:
+                getfullargspec = inspect.getfullargspec
+            except AttributeError:
+                getfullargspec = inspect.getargspec
             if call == 'loadTestsFromModule' and \
-                    len(inspect.getargspec(meth)[0]) == 2:
+                    len(getfullargspec(meth)[0]) == 2:
                 orig_meth = meth
                 meth = lambda module, path, **kwargs: orig_meth(module)
             self.plugins.append((plugin, meth))
@@ -387,7 +391,7 @@ class EntryPointPluginManager(PluginManager):
                     plugcls = ep.load()
                 except KeyboardInterrupt:
                     raise
-                except Exception, e:
+                except Exception as e:
                     # never want a plugin load to kill the test run
                     # but we can't log here because the logger is not yet
                     # configured

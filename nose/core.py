@@ -150,7 +150,7 @@ class TestProgram(unittest.TestProgram):
         if self.config.options.version:
             from nose import __version__
             sys.stdout = sys.__stdout__
-            print "%s version %s" % (os.path.basename(sys.argv[0]), __version__)
+            print("%s version %s" % (os.path.basename(sys.argv[0]), __version__))
             sys.exit(0)
 
         if self.config.options.showPlugins:
@@ -224,42 +224,49 @@ class TestProgram(unittest.TestProgram):
         v = self.config.verbosity
         self.config.plugins.sort()
         for p in self.config.plugins:
-            print "Plugin %s" % p.name
+            print("Plugin %s" % p.name)
             if v >= 2:
-                print "  score: %s" % p.score
-                print '\n'.join(textwrap.wrap(p.help().strip(),
+                print("  score: %s" % p.score)
+                print('\n'.join(textwrap.wrap(p.help().strip(),
                                               initial_indent='  ',
-                                              subsequent_indent='  '))
+                                              subsequent_indent='  ')))
                 if v >= 3:
                     parser = DummyParser()
                     p.addOptions(parser)
                     if len(parser.options):
-                        print
-                        print "  Options:"
+                        print()
+                        print("  Options:")
                         for opts, help in parser.options:
-                            print '  %s' % (', '.join(opts))
+                            print('  %s' % (', '.join(opts)))
                             if help:
-                                print '\n'.join(
+                                print('\n'.join(
                                     textwrap.wrap(help.strip(),
                                                   initial_indent='    ',
-                                                  subsequent_indent='    '))
-                print
+                                                  subsequent_indent='    ')))
+                print()
 
     def usage(cls):
         import nose
+        # Allow usage if __file__ is relative path,
+        # causing usage.txt to not be found.
+        text = "usage.txt not found"
         try:
             ld = nose.__loader__
             text = ld.get_data(os.path.join(
                 os.path.dirname(__file__), 'usage.txt'))
         except AttributeError:
-            f = open(os.path.join(
-                os.path.dirname(__file__), 'usage.txt'), 'r')
+            f = None
             try:
+                f = open(os.path.join(
+                    os.path.dirname(__file__), 'usage.txt'), 'r')
                 text = f.read()
+            except IOError:
+                pass
             finally:
-                f.close()
+                if f:
+                    f.close()
         # Ensure that we return str, not bytes.
-        if not isinstance(text, str):
+        if text and not isinstance(text, str):
             text = text.decode('utf-8')
         return text
     usage = classmethod(usage)

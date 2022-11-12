@@ -1,0 +1,22 @@
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    # ubuntu-22 doesnt support Python 2.7
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        python-version: [2.7] #, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9, '3.10', 3.11]
+    name: main
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: clean .coverage
+        shell: bash
+        run: find . -name .coverage -delete
+      - name: Run tox with tox-gh-actions
+        uses: ymyzk/run-tox-gh-actions@main

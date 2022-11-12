@@ -25,7 +25,7 @@ from nose.util import anyp, ln, safe_str
 try:
     from cStringIO import StringIO
 except ImportError:
-    from StringIO import StringIO
+    from io import StringIO
 
 log = logging.getLogger(__name__)
 
@@ -57,7 +57,7 @@ class FilterSet(object):
         any item in `matchers`"""
         def record_matches_key(key):
             return record == key or record.startswith(key + '.')
-        return anyp(bool, map(record_matches_key, matchers))
+        return anyp(bool, list(map(record_matches_key, matchers)))
     _any_match = staticmethod(_any_match)
 
     def _allow(self, record):
@@ -244,7 +244,7 @@ class LogCapture(Plugin):
         return (ec, self.addCaptureToErr(ev, records), tb)
 
     def formatLogRecords(self):
-        return map(safe_str, self.handler.buffer)
+        return list(map(safe_str, self.handler.buffer))
 
     def addCaptureToErr(self, ev, records):
         return '\n'.join([safe_str(ev), ln('>> begin captured logging <<')] + \

@@ -66,11 +66,11 @@ def test_keyboardinterrupt():
     process, logfile, _ = keyboardinterrupt('keyboardinterrupt.py')
     stdout, stderr = [s.decode('utf-8') for s in process.communicate(None)]
     log = get_log_content(logfile)
-    print stderr
-    print '----'
-    print stdout
-    print '----'
-    print log
+    print(stderr)
+    print('----')
+    print(stdout)
+    print('----')
+    print(log)
     assert 'setup' in log
     assert 'test_timeout' in log
     assert 'test_timeout_finished' not in log
@@ -88,11 +88,11 @@ def test_keyboardinterrupt_twice():
     os.killpg(process.pid, signal.SIGINT)
     stdout, stderr = [s.decode('utf-8') for s in process.communicate(None)]
     log = get_log_content(logfile)
-    print stderr
-    print '----'
-    print stdout
-    print '----'
-    print log
+    print(stderr)
+    print('----')
+    print(stdout)
+    print('----')
+    print(log)
     assert 'setup' in log
     assert 'test_timeout' in log
     assert 'test_timeout_finished' not in log

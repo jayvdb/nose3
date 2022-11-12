@@ -2,7 +2,12 @@
 import unittest, os
 from nose.plugins import PluginTester, Plugin
 from nose.tools import eq_
-from cStringIO import StringIO
+try:
+    # cStringIO doesn't support unicode in 2.5
+    from StringIO import StringIO
+except ImportError:
+    # StringIO has been renamed to 'io' in 3.x
+    from io import StringIO
 
 class StubPlugin(Plugin):
     def options(self, parser, env=os.environ):

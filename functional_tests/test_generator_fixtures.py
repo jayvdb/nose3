@@ -1,4 +1,5 @@
 from nose.tools import eq_
+
 called = []
 
 def outer_setup():
@@ -35,21 +36,21 @@ check.teardown = inner_teardown
 
 class TestClass(object):
     def setup(self):
-        print "setup called in", self
+        print("setup called in", self)
         self.called = ['setup']
 
     def teardown(self):
-        print "teardown called in", self
+        print("teardown called in", self)
         eq_(self.called, ['setup'])
         self.called.append('teardown')
 
     def test(self):
-        print "test called in", self
+        print("test called in", self)
         for i in range(0, 5):
             yield self.check, i
 
     def check(self, i):
-        print "check called in", self
+        print("check called in", self)
         expect = ['setup']
         #for x in range(0, i):
         #    expect.append('setup')

@@ -3,11 +3,16 @@ import optparse
 import os
 import re
 import sys
-import ConfigParser
+try:
+    import configparser as ConfigParser
+except ImportError:
+    import ConfigParser
 from optparse import OptionParser
+from warnings import warn, filterwarnings
+
 from nose.util import absdir, tolist
 from nose.plugins.manager import NoPlugins
-from warnings import warn, filterwarnings
+from nose.pyversion import string_types
 
 log = logging.getLogger(__name__)
 
@@ -65,7 +70,7 @@ class ConfiguredDefaultsOptionParser(object):
             cfg = ConfigParser.RawConfigParser()
             try:
                 cfg.read(filename)
-            except ConfigParser.Error, exc:
+            except ConfigParser.Error as exc:
                 raise ConfigError("Error reading config file %r: %s" %
                                   (filename, str(exc)))
             config.extend(self._configTuples(cfg, filename))
@@ -79,7 +84,7 @@ class ConfiguredDefaultsOptionParser(object):
             filename = '<???>'
         try:
             cfg.readfp(fh)
-        except ConfigParser.Error, exc:
+        except ConfigParser.Error as exc:
             raise ConfigError("Error reading config file %r: %s" %
                               (filename, str(exc)))
         return self._configTuples(cfg, filename)
@@ -89,7 +94,7 @@ class ConfiguredDefaultsOptionParser(object):
             config_files.readline
         except AttributeError:
             filename_or_filenames = config_files
-            if isinstance(filename_or_filenames, basestring):
+            if isinstance(filename_or_filenames, string_types):
                 filenames = [filename_or_filenames]
             else:
                 filenames = filename_or_filenames
@@ -113,12 +118,12 @@ class ConfiguredDefaultsOptionParser(object):
                 continue
             try:
                 self._processConfigValue(name, value, values, parser)
-            except NoSuchOptionError, exc:
+            except NoSuchOptionError as exc:
                 self._file_error(
                     "Error reading config file %r: "
                     "no such option %r" % (filename, exc.name),
                     name=name, filename=filename)
-            except optparse.OptionValueError, exc:
+            except optparse.OptionValueError as exc:
                 msg = str(exc).replace('--' + name, repr(name), 1)
                 self._file_error("Error reading config file %r: "
                                  "%s" % (filename, msg),
@@ -128,12 +133,12 @@ class ConfiguredDefaultsOptionParser(object):
         values = self._parser.get_default_values()
         try:
             config = self._readConfiguration(config_files)
-        except ConfigError, exc:
+        except ConfigError as exc:
             self._error(str(exc))
         else:
             try:
                 self._applyConfigurationToValues(self._parser, config, values)
-            except ConfigError, exc:
+            except ConfigError as exc:
                 self._error(str(exc))
         return self._parser.parse_args(args, values)
 
@@ -194,7 +199,7 @@ class Config(object):
                                           r'^_',
                                           r'^setup\.py$',
                                           ]
-        self.ignoreFiles = map(re.compile, self.ignoreFilesDefaultStrings)
+        self.ignoreFiles = list(map(re.compile, self.ignoreFilesDefaultStrings))
         self.include = None
         self.loggingConfig = None
         self.logStream = sys.stderr
@@ -327,17 +332,17 @@ class Config(object):
             self.testMatch = re.compile(options.testMatch)
 
         if options.ignoreFiles:
-            self.ignoreFiles = map(re.compile, tolist(options.ignoreFiles))
+            self.ignoreFiles = list(map(re.compile, tolist(options.ignoreFiles)))
             log.info("Ignoring files matching %s", options.ignoreFiles)
         else:
             log.info("Ignoring files matching %s", self.ignoreFilesDefaultStrings)
 
         if options.include:
-            self.include = map(re.compile, tolist(options.include))
+            self.include = list(map(re.compile, tolist(options.include)))
             log.info("Including tests matching %s", options.include)
 
         if options.exclude:
-            self.exclude = map(re.compile, tolist(options.exclude))
+            self.exclude = list(map(re.compile, tolist(options.exclude)))
             log.info("Excluding tests matching %s", options.exclude)
 
         # When listing plugins we don't want to run them
@@ -625,12 +630,14 @@ class NoOptions(object):
     def __nonzero__(self):
         return False
 
+    __bool__ = __nonzero__
+
 
 def user_config_files():
     """Return path to any existing user config files
     """
-    return filter(os.path.exists,
-                  map(os.path.expanduser, config_files))
+    return list(filter(os.path.exists,
+                       list(map(os.path.expanduser, config_files))))
 
 
 def all_config_files():

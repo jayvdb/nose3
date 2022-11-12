@@ -97,16 +97,17 @@ arguments and reads environment variables.
 
 import re
 import sys
+from os import getpid
 from warnings import warn
 
 try:
     from cStringIO import StringIO
 except ImportError:
-    from StringIO import StringIO
+    from io import StringIO
 
 __all__ = ['PluginTester', 'run']
 
-from os import getpid
+
 class MultiProcessFile(object):
     """
     helper for testing multiprocessing
@@ -135,7 +136,11 @@ class MultiProcessFile(object):
         if getpid() != self.__master:
             return
 
-        from Queue import Empty
+        try:
+            from queue import Empty
+        except ImportError:
+            from Queue import Empty
+
         from collections import defaultdict
         cache = defaultdict(str)
         while True:
@@ -404,7 +409,7 @@ def run(*arg, **kw):
             sys.stderr = stderr
             sys.stdout = stdout
     out = buffer.getvalue()
-    print munge_nose_output_for_doctest(out)
+    print(munge_nose_output_for_doctest(out))
 
 
 def run_buffered(*arg, **kw):

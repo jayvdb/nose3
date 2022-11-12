@@ -14,5 +14,5 @@ class TestIssue649(PluginTester, unittest.TestCase):
     suitepath = os.path.join(support, 'issue649')
 
     def runTest(self):
-        print str(self.output)
+        print(str(self.output))
         assert 'UnicodeDecodeError' not in self.output

@@ -4,6 +4,7 @@ import re
 import unittest
 import nose.selector
 from nose.config import Config
+from nose.pyversion import _add_metaclass
 from nose.selector import log, Selector
 from nose.util import absdir
 from mock import mod
@@ -74,6 +75,8 @@ class TestSelector(unittest.TestCase):
         class TestType(type):
             def __new__(cls, name, bases, dct):
                 return type.__new__(cls, name, bases, dct)
+
+        @_add_metaclass(TestType)
         class TestClass(object):
             __metaclass__ = TestType
         

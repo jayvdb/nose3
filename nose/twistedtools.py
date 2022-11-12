@@ -29,8 +29,14 @@ Or, more realistically::
 """
 
 import sys
-from Queue import Queue, Empty
+try:
+    from queue import Empty, Queue
+except ImportError:
+    from Queue import Empty, Queue
+
+from nose.pyversion import PY3
 from nose.tools import make_decorator, TimeExpired
+
 
 __all__ = [
     'threaded_reactor', 'reactor', 'deferred', 'TimeExpired',
@@ -165,9 +171,14 @@ def deferred(timeout=None):
                                   % timeout)
             # Re-raise all exceptions
             if error is not None:
-                exc_type, exc_value, tb = error
-                raise exc_type, exc_value, tb
+                _, exc_value, tb = error
+                if PY3:
+                    raise exc_value.with_traceback(tb)
+                else:
+                    _py2_reraise(exc_value, tb)
         wrapper = make_decorator(func)(wrapper)
         return wrapper
     return decorate
 
+def _py2_reraise(exc_value, tb):
+    exec("raise exc_value, None, tb")

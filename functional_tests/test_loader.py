@@ -2,7 +2,12 @@ import os
 import sys
 import unittest
 from difflib import ndiff
-from cStringIO import StringIO
+try:
+    # cStringIO doesn't support unicode in 2.5
+    from StringIO import StringIO
+except ImportError:
+    # StringIO has been renamed to 'io' in 3.x
+    from io import StringIO
 
 from nose.config import Config
 from nose.plugins.allmodules import AllModules
@@ -74,7 +79,7 @@ class TestNoseTestLoader(unittest.TestCase):
         dir_suite(res)
 
         m = sys.modules['test_pak']
-        print "test pak state", m.state
+        print("test pak state", m.state)
 
         assert not res.errors, res.errors
         assert not res.failures, res.failures
@@ -115,7 +120,7 @@ class TestNoseTestLoader(unittest.TestCase):
         assert 'test_pak' in sys.modules, \
                "Context did not load test_pak"
         m = sys.modules['test_pak']
-        print "test pak state", m.state
+        print("test pak state", m.state)
         expect = ['test_pak.setup',
                   'test_pak.test_mod.setup',
                   'test_pak.test_mod.test_add',
@@ -136,7 +141,7 @@ class TestNoseTestLoader(unittest.TestCase):
         assert 'test_pak' in sys.modules, \
                "Context did not load test_pak"
         m = sys.modules['test_pak']
-        print "test pak state", m.state
+        print("test pak state", m.state)
         expect = ['test_pak.setup',
                   'test_pak.test_mod.setup',
                   'test_pak.test_mod.test_add',
@@ -185,7 +190,7 @@ class TestNoseTestLoader(unittest.TestCase):
         assert 'test_pak' in sys.modules, \
                "Context not load test_pak"
         m = sys.modules['test_pak']
-        print "test pak state", m.state
+        print("test pak state", m.state)
         expect = ['test_pak.setup',
                   'test_pak.test_sub.setup',
                   'test_pak.test_sub.test_mod.setup',
@@ -207,14 +212,14 @@ class TestNoseTestLoader(unittest.TestCase):
             ['test_pak.test_sub.test_mod:TestMaths.test_div',
              'test_pak.test_sub.test_mod:TestMaths.test_two_two',
              'test_pak.test_mod:test_add'])
-        print suite
+        print(suite)
         suite(res)
         assert not res.errors, res.errors
         assert not res.failures, res.failures
         assert 'test_pak' in sys.modules, \
                "Context not load test_pak"
         m = sys.modules['test_pak']
-        print "test pak state", m.state
+        print("test pak state", m.state)
         expect = ['test_pak.setup',
                   'test_pak.test_sub.setup',
                   'test_pak.test_sub.test_mod.setup',
@@ -243,16 +248,16 @@ class TestNoseTestLoader(unittest.TestCase):
             ['test_pak1.test_mod',
              'test_pak2:test_two_two',
              'test_pak1:test_one_one'])
-        print suite
+        print(suite)
         suite(res)
         res.printErrors()
-        print stream.getvalue()
+        print(stream.getvalue())
         assert not res.errors, res.errors
         assert not res.failures, res.failures
         assert 'state' in sys.modules, \
                "Context not load state module"
         m = sys.modules['state']
-        print "state", m.called
+        print("state", m.called)
 
         expect = ['test_pak1.setup',
                   'test_pak1.test_mod.setup',
@@ -274,16 +279,16 @@ class TestNoseTestLoader(unittest.TestCase):
             ['test_pak1.test_mod',
              'test_pak2:test_two_two',
              'test_mod'])
-        print suite
+        print(suite)
         suite(res)
         res.printErrors()
-        print stream.getvalue()
+        print(stream.getvalue())
         assert not res.errors, res.errors
         assert not res.failures, res.failures
         assert 'state' in sys.modules, \
                "Context not load state module"
         m = sys.modules['state']
-        print "state", m.called
+        print("state", m.called)
 
         expect = ['test_pak1.setup',
                   'test_pak1.test_mod.setup',
@@ -351,7 +356,7 @@ class TestNoseTestLoader(unittest.TestCase):
             descriptions=0, verbosity=1)
         suite(res)
 
-        print res.errors
+        print(res.errors)
         res.printErrors()
         assert res.errors, "Expected errors but got none"
         assert not res.failures, res.failures
@@ -367,7 +372,7 @@ class TestNoseTestLoader(unittest.TestCase):
             stream=_WritelnDecorator(sys.stdout),
             descriptions=0, verbosity=1)
         suite(res)
-        print res.errors
+        print(res.errors)
         res.printErrors()
         assert res.errors, "Expected errors but got none"
         assert not res.failures, res.failures
@@ -384,7 +389,7 @@ class TestNoseTestLoader(unittest.TestCase):
             stream=_WritelnDecorator(sys.stdout),
             descriptions=0, verbosity=1)
         suite(res)
-        print res.errors
+        print(res.errors)
         assert res.errors, "Expected errors but got none"
         assert not res.failures, res.failures
 
@@ -415,7 +420,7 @@ class TestNoseTestLoader(unittest.TestCase):
             stream=_WritelnDecorator(sys.stdout),
             descriptions=0, verbosity=1)
         suite(res)
-        print res.errors
+        print(res.errors)
         self.assertEqual(len(res.errors), 1)
         assert 'raise Exception("pow")' in res.errors[0][1]
 
@@ -429,7 +434,7 @@ class TestNoseTestLoader(unittest.TestCase):
         assert 'test_pak' in sys.modules, \
                "Context did not load test_pak"
         m = sys.modules['test_pak']
-        print "test pak state", m.state
+        print("test pak state", m.state)
         expect = ['test_pak.setup',
                   'test_pak.test_sub.setup',
                   'test_pak.test_sub.test_sub_init',
@@ -450,7 +455,7 @@ class TestNoseTestLoader(unittest.TestCase):
         assert 'test_pak' in sys.modules, \
                "Context did not load test_pak"
         m = sys.modules['test_pak']
-        print "test pak state", m.state
+        print("test pak state", m.state)
         expect = ['test_pak.setup',
                   'test_pak.test_sub.setup',
                   'test_pak.test_sub.test_sub_init',
@@ -483,7 +488,7 @@ class TreePrintContextSuite(suite.ContextSuite):
     indent = ''
 
     def setUp(self):
-        print self, 'setup -->'
+        print(self, 'setup -->')
         suite.ContextSuite.setUp(self)
         TreePrintContextSuite.indent += '  '
 
@@ -492,7 +497,7 @@ class TreePrintContextSuite(suite.ContextSuite):
         try:
             suite.ContextSuite.tearDown(self)
         finally:
-            print self, 'teardown <--'
+            print(self, 'teardown <--')
     def __repr__(self):
         
         return '%s<%s>' % (self.indent,

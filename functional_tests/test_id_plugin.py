@@ -7,7 +7,10 @@ import unittest
 from nose.plugins import PluginTester
 from nose.plugins.builtin import Doctest
 from nose.plugins.builtin import TestId
-from cPickle import dump, load
+try:
+    from cPickle import dump, load
+except ImportError:
+    from pickle import dump, load
 
 support = os.path.join(os.path.dirname(__file__), 'support')
 idfile = tempfile.mktemp()
@@ -49,9 +52,9 @@ class TestDiscoveryMode(PluginTester, unittest.TestCase):
         ids = load(fh)['ids']
         fh.close()
         assert ids
-        assert ids.keys()
-        self.assertEqual(map(int, ids.keys()), ids.keys())
-        assert ids.values()
+        assert list(ids.keys())
+        self.assertEqual(list(map(int, list(ids.keys()))), list(ids.keys()))
+        assert list(ids.values())
 
 
 class TestLoadNamesMode(PluginTester, unittest.TestCase):
@@ -81,10 +84,10 @@ class TestLoadNamesMode(PluginTester, unittest.TestCase):
         ids = load(fh)
         fh.close()
         assert ids
-        assert ids.keys()
+        assert list(ids.keys())
         ids = ids['ids']
-        self.assertEqual(filter(lambda i: int(i), ids.keys()), ids.keys())
-        assert len(ids.keys()) > 2
+        self.assertEqual([i for i in list(ids.keys()) if int(i)], list(ids.keys()))
+        assert len(list(ids.keys())) > 2
 
 
 class TestLoadNamesMode_2(PluginTester, unittest.TestCase):
@@ -166,9 +169,9 @@ class TestWithDoctest_2(PluginTester, unittest.TestCase):
         return None
 
     def test_load_ids_doctest(self):
-        print '*' * 70
-        print str(self.output)
-        print '*' * 70
+        print('*' * 70)
+        print(str(self.output))
+        print('*' * 70)
 
         assert 'Doctest: exm.add_one ... FAIL' in self.output
         
@@ -188,9 +191,9 @@ class TestWithDoctestFileTests_1(PluginTester, unittest.TestCase):
     suitepath = os.path.join(support, 'dtt', 'docs')
 
     def test_docfile_tests_get_ids(self):
-        print '>' * 70
-        print str(self.output)
-        print '>' * 70
+        print('>' * 70)
+        print(str(self.output))
+        print('>' * 70)
 
         last = None
         for line in self.output:
@@ -234,9 +237,9 @@ class TestWithDoctestFileTests_2(PluginTester, unittest.TestCase):
         return None
 
     def test_load_from_name_id_docfile_test(self):
-        print '*' * 70
-        print str(self.output)
-        print '*' * 70
+        print('*' * 70)
+        print(str(self.output))
+        print('*' * 70)
 
         assert 'Doctest: errdoc.txt ... FAIL' in self.output
         

@@ -3,7 +3,12 @@ import sys
 import unittest
 from nose.plugins.skip import SkipTest
 from nose import commands
-from StringIO import StringIO
+try:
+    # cStringIO doesn't support unicode in 2.5
+    from StringIO import StringIO
+except ImportError:
+    # StringIO has been renamed to 'io' in 3.x
+    from io import StringIO
 
 support = os.path.join(
     os.path.dirname(__file__), 'support', 'issue191')
@@ -32,12 +37,12 @@ class TestCommands(unittest.TestCase):
                                 'package_dir': {'issue191': support}}))
         cmd.finalize_options()
         ## FIXME why doesn't Config see the chdir above?
-        print cmd._nosetests__config.workingDir
+        print(cmd._nosetests__config.workingDir)
         cmd._nosetests__config.workingDir = support
         cmd._nosetests__config.stream = buf
         try:
             cmd.run()
-        except SystemExit, e:
+        except SystemExit as e:
             self.assertFalse(e.args[0], buf.getvalue())
         else:
             self.fail("cmd.run() did not exit")

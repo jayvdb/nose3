@@ -16,7 +16,12 @@ import traceback
 from nose.plugins.base import Plugin
 from nose.pyversion import exc_to_unicode, force_unicode
 from nose.util import ln
-from StringIO import StringIO
+try:
+    # cStringIO doesn't support unicode in 2.5
+    from StringIO import StringIO
+except ImportError:
+    # StringIO has been renamed to 'io' in 3.x
+    from io import StringIO
 
 
 log = logging.getLogger(__name__)

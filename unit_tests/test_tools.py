@@ -11,7 +11,7 @@ class TestTools(unittest.TestCase):
         ok_(True)
         try:
             ok_(False, "message")
-        except AssertionError, e:
+        except AssertionError as e:
             assert str(e) == "message"
         else:
             self.fail("ok_(False) did not raise assertion error")
@@ -20,13 +20,13 @@ class TestTools(unittest.TestCase):
         eq_(1, 1)
         try:
             eq_(1, 0, "message")
-        except AssertionError, e:
+        except AssertionError as e:
             assert str(e) == "message"
         else:
             self.fail("eq_(1, 0) did not raise assertion error")
         try:
             eq_(1, 0)
-        except AssertionError, e:
+        except AssertionError as e:
             assert str(e) == "1 != 0"
         else:
             self.fail("eq_(1, 0) did not raise assertion error")
@@ -37,7 +37,7 @@ class TestTools(unittest.TestCase):
         This lets tracebacks refrain from descending into the eq_ frame.
 
         """
-        assert '__unittest' in eq_.func_globals
+        assert '__unittest' in eq_.__globals__
 
     def test_istest_unittest_flag(self):
         """Make sure istest() is not in a namespace that has __unittest = 1.
@@ -45,7 +45,7 @@ class TestTools(unittest.TestCase):
         That is, make sure our __unittest labeling didn't get overzealous.
 
         """
-        assert '__unittest' not in istest.func_globals
+        assert '__unittest' not in istest.__globals__
 
     def test_raises(self):
         from nose.case import FunctionTestCase
@@ -66,14 +66,14 @@ class TestTools(unittest.TestCase):
         raise_good()
         try:
             raise_other()
-        except TypeError, e:
+        except TypeError as e:
             pass
         else:
             self.fail("raises did pass through unwanted exception")
 
         try:
             no_raise()
-        except AssertionError, e:
+        except AssertionError as e:
             pass
         else:
             self.fail("raises did not raise assertion error on no exception")
@@ -163,7 +163,7 @@ class TestTools(unittest.TestCase):
         import nose.tools
         tc_asserts = [ at for at in dir(nose.tools)
                        if at.startswith('assert_') ]
-        print tc_asserts
+        print(tc_asserts)
 
         # FIXME: not sure which of these are in all supported
         # versions of python

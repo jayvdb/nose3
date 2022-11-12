@@ -21,11 +21,11 @@ class TestStringException(PluginTester, unittest.TestCase):
             raise SkipTest("String exceptions are not supported in this "
                            "version of Python")
 
-        print
-        print '!' * 70
-        print str(self.output)
-        print '!' * 70
-        print
+        print()
+        print('!' * 70)
+        print(str(self.output))
+        print('!' * 70)
+        print()
         assert 'raise "string exception"' in str(self.output)
         assert 'raise "string exception in setup"' in str(self.output)
         assert 'raise "string exception in teardown"' in str(self.output)

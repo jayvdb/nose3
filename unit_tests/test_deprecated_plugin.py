@@ -2,7 +2,12 @@ import unittest
 from nose.config import Config
 from nose.plugins.deprecated import Deprecated, DeprecatedTest
 from nose.result import TextTestResult, _TextTestResult
-from StringIO import StringIO
+try:
+    # cStringIO doesn't support unicode in 2.5
+    from StringIO import StringIO
+except ImportError:
+    # StringIO has been renamed to 'io' in 3.x
+    from io import StringIO
 from optparse import OptionParser
 try:
     # 2.7+
@@ -107,7 +112,7 @@ class TestDeprecatedPlugin(unittest.TestCase):
 
         res.printErrors()
         out = stream.getvalue()
-        print out
+        print(out)
         assert out
 
         assert ' ... DEPRECATED' in out

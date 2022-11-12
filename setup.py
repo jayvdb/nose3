@@ -6,6 +6,7 @@ py_vers_tag = '-%s.%s' % sys.version_info[:2]
 
 test_dirs = ['functional_tests', 'unit_tests', os.path.join('doc','doc_tests'), 'nose']
 
+
 if sys.version_info >= (3,):
     try:
         import setuptools
@@ -13,17 +14,13 @@ if sys.version_info >= (3,):
         from distribute_setup import use_setuptools
         use_setuptools()
 
-    extra = {'use_2to3': True,
-             'test_dirs': test_dirs,
-             'test_build_dir': 'build/tests',
-             'pyversion_patching': True,
+    extra = {'test_dirs': test_dirs,
              }
 else:
     extra = {}
 
 try:
-    from setup3lib import setup
-    from setuptools import find_packages
+    from setuptools import find_packages, setup
     addl_args = dict(
         zip_safe = False,
         packages = find_packages(),
@@ -33,7 +30,7 @@ try:
             'nosetests%s = nose:run_exit' % py_vers_tag,
             ],
         'distutils.commands': [
-            ' nosetests = nose.commands:nosetests',
+            'nosetests = nose.commands:nosetests',
             ],
         },
         test_suite = 'nose.collector',
@@ -68,7 +65,7 @@ try:
         easy_install._write_script = easy_install.write_script
         easy_install.write_script = wrap_write_script
 
-except ImportError:
+except ImportError as e:
     from distutils.core import setup
     addl_args = dict(
         packages = ['nose', 'nose.ext', 'nose.plugins', 'nose.sphinx',
@@ -83,7 +80,9 @@ setup(
     author_email = 'jpellerin+nose@gmail.com',
     description = ('nose extends unittest to make testing easier'),
     long_description = \
-    """nose extends the test loading and running features of unittest, making
+    """nose3 is a fork of nose v1 not using lib2to3 for compatibility with Python 3.
+
+    nose extends the test loading and running features of unittest, making
     it easier to write, find and run tests.
 
     By default, nose will run tests in files or directories under the current
@@ -99,13 +98,12 @@ setup(
     found on in the nose API documentation, here:
     http://readthedocs.org/docs/nose/
 
-    If you have recently reported a bug marked as fixed, or have a craving for
-    the very latest, you may want the development version instead:
-    https://github.com/nose-devs/nose/tarball/master#egg=nose-dev
+    If you encounter any problems, please raise an issue at:
+    https://github.com/jayvdb/nose3
     """,
     license = 'GNU LGPL',
     keywords = 'test unittest doctest automatic discovery',
-    url = 'http://readthedocs.org/docs/nose/',
+    url = 'https://github.com/jayvdb/nose3',
     data_files = [('man/man1', ['nosetests.1'])],
     package_data = {'': ['*.txt',
                          'examples/*.py',

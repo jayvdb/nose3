@@ -9,7 +9,7 @@ import re
 import sys
 import types
 import unittest
-from nose.pyversion import ClassType, TypeType, isgenerator, ismethod
+from nose.pyversion import ClassType, TypeType, isgenerator, text_type
 
 
 log = logging.getLogger('nose')
@@ -151,7 +151,10 @@ def func_lineno(func):
         return func.compat_co_firstlineno
     except AttributeError:
         try:
-            return func.func_code.co_firstlineno
+            try:
+                return func.func_code.co_firstlineno
+            except AttributeError:
+                return func.__code__.co_firstlineno
         except AttributeError:
             return -1
 
@@ -400,7 +403,7 @@ def test_address(test):
         file = getattr(test, '__file__', None)
         module = getattr(test, '__name__', None)
         return (src(file), module, call)
-    if t == types.FunctionType or issubclass(t, type) or t == types.ClassType:
+    if t == types.FunctionType or issubclass(t, type) or t == ClassType:
         module = getattr(test, '__module__', None)
         if module is not None:
             m = sys.modules[module]
@@ -410,7 +413,10 @@ def test_address(test):
         call = getattr(test, '__name__', None)
         return (src(file), module, call)
     if t == types.MethodType:
-        cls_adr = test_address(test.im_class)
+        try:
+            cls_adr = test_address(test.im_class)
+        except AttributeError:
+            cls_adr = test_address(test.__self__.__class__)
         return (src(cls_adr[0]), cls_adr[1],
                 "%s.%s" % (cls_adr[2], test.__name__))
     # handle unittest.TestCase instances
@@ -447,17 +453,21 @@ def try_run(obj, names):
         func = getattr(obj, name, None)
         if func is not None:
             if type(obj) == types.ModuleType:
+                try:
+                    getargspec = inspect.getargspec
+                except AttributeError:
+                    getargspec = lambda x: inspect.getfullargspec(x)[0:4]
                 # py.test compatibility
                 if isinstance(func, types.FunctionType):
                     args, varargs, varkw, defaults = \
-                        inspect.getargspec(func)
+                        getargspec(func)
                 else:
                     # Not a function. If it's callable, call it anyway
                     if hasattr(func, '__call__') and not inspect.ismethod(func):
                         func = func.__call__
                     try:
                         args, varargs, varkw, defaults = \
-                            inspect.getargspec(func)
+                            getargspec(func)
                         args.pop(0) # pop the self off
                     except TypeError:
                         raise TypeError("Attribute %s of %r is not a python "
@@ -564,7 +574,7 @@ class odict(dict):
         return d
 
     def items(self):
-        return zip(self._keys, self.values())
+        return list(zip(self._keys, list(self.values())))
 
     def keys(self):
         return self._keys[:]
@@ -582,7 +592,7 @@ class odict(dict):
                 self._keys.append(key)
 
     def values(self):
-        return map(self.get, self._keys)
+        return list(map(self.get, self._keys))
 
 
 def transplant_func(func, module):
@@ -654,7 +664,7 @@ def safe_str(val, encoding='utf-8'):
         if isinstance(val, Exception):
             return ' '.join([safe_str(arg, encoding)
                              for arg in val])
-        return unicode(val).encode(encoding)
+        return text_type(val).encode(encoding)
 
 
 def is_executable(file):

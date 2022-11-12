@@ -113,7 +113,7 @@ class TestLoader(unittest.TestLoader):
                 return False
             return sel.wantMethod(item)
 
-        cases = filter(wanted, dir(testCaseClass))
+        cases = list(filter(wanted, dir(testCaseClass)))
 
         # add runTest if nothing else picked
         if not cases and hasattr(testCaseClass, 'runTest'):
@@ -226,7 +226,7 @@ class TestLoader(unittest.TestLoader):
                 # Plugins can yield False to indicate that they were
                 # unable to load tests from a file, but it was not an
                 # error -- the file just had no tests to load.
-                tests = filter(None, tests)
+                tests = [_f for _f in tests if _f]
                 return self.suiteClass(tests)
             else:
                 # Nothing was able to even try to load from this file
@@ -257,6 +257,8 @@ class TestLoader(unittest.TestLoader):
                     yield FunctionTestCase(test_func, arg=arg, descriptor=g)
             except KeyboardInterrupt:
                 raise
+            except GeneratorExit:
+                pass
             except:
                 exc = sys.exc_info()
                 yield Failure(exc[0], exc[1], exc[2],
@@ -331,8 +333,7 @@ class TestLoader(unittest.TestLoader):
                     test_funcs.append(test)
             sort_list(test_classes, lambda x: x.__name__)
             sort_list(test_funcs, func_lineno)
-            tests = map(lambda t: self.makeTest(t, parent=module),
-                        test_classes + test_funcs)
+            tests = [self.makeTest(t, parent=module) for t in test_classes + test_funcs]
 
         # Now, descend into packages
         # FIXME can or should this be lazy?

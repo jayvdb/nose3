@@ -13,7 +13,12 @@ variable.
 import logging
 import re
 import sys
-import StringIO
+try:
+    # cStringIO doesn't support unicode in 2.5
+    from StringIO import StringIO
+except ImportError:
+    # StringIO has been renamed to 'io' in 3.x
+    from io import StringIO
 from nose.plugins.base import Plugin
 from nose.util import src, tolist
 
@@ -161,7 +166,7 @@ class Coverage(Plugin):
             self.coverInstance.exclude('#pragma[: ]+[nN][oO] [cC][oO][vV][eE][rR]')
 
             log.debug("Coverage begin")
-            self.skipModules = sys.modules.keys()[:]
+            self.skipModules = list(sys.modules.keys())[:]
             if self.coverErase:
                 log.debug("Clearing previously collected coverage statistics")
                 self.coverInstance.combine()
@@ -209,19 +214,19 @@ class Coverage(Plugin):
             log.debug("Generating HTML coverage report")
             try:
                 self.coverInstance.html_report(modules, self.coverHtmlDir)
-            except coverage.misc.CoverageException, e:
+            except coverage.misc.CoverageException as e:
                 log.warning("Failed to generate HTML report: %s" % str(e))
 
         if self.coverXmlFile:
             log.debug("Generating XML coverage report")
             try:
                 self.coverInstance.xml_report(modules, self.coverXmlFile)
-            except coverage.misc.CoverageException, e:
+            except coverage.misc.CoverageException as e:
                 log.warning("Failed to generate XML report: %s" % str(e))
 
         # make sure we have minimum required coverage
         if self.coverMinPercentage:
-            f = StringIO.StringIO()
+            f = StringIO()
             self.coverInstance.report(modules, file=f, show_missing=True)
 
             multiPackageRe = (r'-------\s\w+\s+\d+\s+\d+(?:\s+\d+\s+\d+)?'

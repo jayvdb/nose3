@@ -15,11 +15,11 @@ class TestPrintedTraceback(PluginTester, unittest.TestCase):
         return None
 
     def test_correct_exception_raised(self):
-        print
-        print '!' * 70
-        print str(self.output)
-        print '!' * 70
-        print
+        print()
+        print('!' * 70)
+        print(str(self.output))
+        print('!' * 70)
+        print()
 
         # Look for the line in the traceback causing the failure
         assert "raise '\\xf1'.encode('ASCII')" in str(self.output)

@@ -198,7 +198,7 @@ class TestId(Plugin):
                     'Loaded test ids %s tests %s failed %s sources %s from %s',
                     self.ids, self.tests, self.failed, self.source_names,
                     self.idfile)
-            except ValueError, e:
+            except ValueError as e:
                 # load() may throw a ValueError when reading the ids file, if it
                 # was generated with a newer version of Python than we are currently
                 # running.

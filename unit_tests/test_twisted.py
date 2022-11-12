@@ -29,7 +29,7 @@ test_resolve = deferred()(test_resolve)
 #@raises(TypeError)
 #@deferred()
 def test_raises_bad_return():
-    print reactor
+    print(reactor)
     reactor.resolve("www.python.org")
 test_raises_bad_return = raises(TypeError)(deferred()(test_raises_bad_return))
 

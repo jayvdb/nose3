@@ -1,7 +1,12 @@
 import os
 import sys
 import unittest
-from cStringIO import StringIO
+try:
+    # cStringIO doesn't support unicode in 2.5
+    from StringIO import StringIO
+except ImportError:
+    # StringIO has been renamed to 'io' in 3.x
+    from io import StringIO
 from optparse import OptionParser
 import nose.core
 from nose.config import Config, all_config_files
@@ -16,16 +21,16 @@ class NullLoader:
 class TestAPI_run(unittest.TestCase):
 
     def test_restore_stdout(self):
-        print "AHOY"
+        print("AHOY")
         s = StringIO()
-        print s
+        print(s)
         stdout = sys.stdout
         conf = Config(stream=s)
         # set_trace()
-        print "About to run"
+        print("About to run")
         res = nose.core.run(
             testLoader=NullLoader(), argv=['test_run'], env={}, config=conf)
-        print "Done running"
+        print("Done running")
         stdout_after = sys.stdout
         self.assertEqual(stdout, stdout_after)
 

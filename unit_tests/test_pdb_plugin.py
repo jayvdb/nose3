@@ -3,7 +3,12 @@ import unittest
 from nose.config import Config
 from nose.plugins import debug
 from optparse import OptionParser
-from StringIO import StringIO
+try:
+    # cStringIO doesn't support unicode in 2.5
+    from StringIO import StringIO
+except ImportError:
+    # StringIO has been renamed to 'io' in 3.x
+    from io import StringIO
 
 class StubPdb:
     called = False

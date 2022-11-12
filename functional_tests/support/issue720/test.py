@@ -2,5 +2,5 @@
 import unittest
 class Test(unittest.TestCase):
     def test(self):
-        print u"Unicöde"
+        print(u"Unicöde")
         assert 1 == 2

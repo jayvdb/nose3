@@ -6,19 +6,27 @@ import os
 import traceback
 import types
 import inspect
-import nose.util
 
 __all__ = ['make_instancemethod', 'cmp_to_key', 'sort_list', 'ClassType',
            'TypeType', 'UNICODE_STRINGS', 'unbound_method', 'ismethod',
            'bytes_', 'is_base_exception', 'force_unicode', 'exc_to_unicode',
            'format_exception']
 
+PY3 = sys.version_info[0] == 3
+
+if PY3:
+    string_types = str,
+    text_type = str
+else:
+    string_types = basestring,
+    text_type = unicode
+
 # In Python 3.x, all strings are unicode (the call to 'unicode()' in the 2.x
 # source will be replaced with 'str()' when running 2to3, so this test will
 # then become true)
-UNICODE_STRINGS = (type(unicode()) == type(str()))
+UNICODE_STRINGS = (type(text_type()) == type(str()))
 
-if sys.version_info[:2] < (3, 0):
+if not PY3:
     def force_unicode(s, encoding='UTF-8'):
         try:
             s = unicode(s)
@@ -100,6 +108,8 @@ class UnboundMethod:
         filename = getattr(module, '__file__', None)
         if filename is not None:
             filename = os.path.abspath(filename)
+        # Import here to avoid cyclic dependency
+        import nose.util
         return (nose.util.src(filename), modname, "%s.%s" % (cls.__name__,
                                                         self._func.__name__))
 
@@ -136,6 +146,15 @@ def ismethod(obj):
     return inspect.ismethod(obj) or isinstance(obj, UnboundMethod)
 
 
+def _add_metaclass(metaclass):
+    'Very basic helper to activate Python 2 __metaclass__'
+    def wrapper(cls):
+        return metaclass(cls.__name__, cls.__bases__, cls.__dict__.copy())
+
+    if not PY3:
+        return lambda x: x
+    return wrapper
+
 # Make a pseudo-bytes function that can be called without the encoding arg:
 if sys.version_info >= (3, 0):
     def bytes_(s, encoding='utf8'):
@@ -163,6 +182,11 @@ else:
         try:
             return func.func_code.co_flags & CO_GENERATOR != 0
         except AttributeError:
+            pass
+
+        try:
+            return func.__code__.co_flags & CO_GENERATOR != 0
+        except AttributeError:
             return False
 
 # Make a function to help check if an exception is derived from BaseException.
@@ -188,7 +212,7 @@ if sys.version_info[:2] < (3, 0):
                 clsname = force_unicode(ev.__class__.__name__,
                         encoding=encoding)
                 ev = u'%s: %s' % (clsname, msg)
-        elif not isinstance(ev, unicode):
+        elif not isinstance(ev, text_type):
             ev = repr(ev)
 
         return force_unicode(ev, encoding=encoding)

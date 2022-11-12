@@ -92,10 +92,11 @@ Since we defined a Todo as a failure, the run was not successful.
     False
 """
 
-from nose.pyversion import make_instancemethod
+from nose.pyversion import _add_metaclass, make_instancemethod
 from nose.plugins.base import Plugin
 from nose.result import TextTestResult
 from nose.util import isclass
+
 
 class MetaErrorClass(type):
     """Metaclass for ErrorClassPlugins that allows error classes to be
@@ -103,7 +104,7 @@ class MetaErrorClass(type):
     """
     def __init__(self, name, bases, attr):
         errorClasses = []
-        for name, detail in attr.items():
+        for name, detail in dict(attr).items():
             if isinstance(detail, ErrorClass):
                 attr.pop(name)
                 for cls in detail:
@@ -127,6 +128,7 @@ class ErrorClass(object):
         return iter(self.errorClasses)
 
 
+@_add_metaclass(MetaErrorClass)
 class ErrorClassPlugin(Plugin):
     """
     Base class for ErrorClass plugins. Subclass this class and declare the
@@ -141,7 +143,7 @@ class ErrorClassPlugin(Plugin):
         if not isclass(err_cls):
             return
         classes = [e[0] for e in self.errorClasses]
-        if filter(lambda c: issubclass(err_cls, c), classes):
+        if [c for c in classes if issubclass(err_cls, c)]:
             return True
 
     def prepareTestResult(self, result):

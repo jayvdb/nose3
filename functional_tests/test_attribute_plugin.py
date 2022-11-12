@@ -17,9 +17,9 @@ class AttributePluginTester(PluginTester, unittest.TestCase):
     activate = '-v'
 
     def runTest(self):
-        print '*' * 70
-        print str(self.output)
-        print '*' * 70
+        print('*' * 70)
+        print(str(self.output))
+        print('*' * 70)
         self.verify()
 
     def verify(self):

@@ -181,7 +181,7 @@ class TestLogCapturePlugin(object):
         parser = OptionParser()
         c.addOptions(parser, env)
         options, args = parser.parse_args(['foo'])
-        print options, args
+        print(options, args)
         c.configure(options, Config())
         c.start()
         for name in ['foobar.something', 'foo', 'foo.x', 'abara', 'bar.quux']:
@@ -200,7 +200,7 @@ class TestLogCapturePlugin(object):
         parser = OptionParser()
         c.addOptions(parser, env)
         options, args = parser.parse_args(['foo'])
-        print options, args
+        print(options, args)
         c.configure(options, Config())
         c.start()
         for name in ['foobar.something', 'foo', 'foo.x', 'abara', 'bar.quux']:
@@ -218,7 +218,7 @@ class TestLogCapturePlugin(object):
         parser = OptionParser()
         c.addOptions(parser, env)
         options, args = parser.parse_args(['foo'])
-        print options, args
+        print(options, args)
         c.configure(options, Config())
         c.start()
         for name in ['foo.yes', 'foo.bar', 'foo.bar.no', 'blah']:
@@ -250,7 +250,7 @@ class TestLogCapturePlugin(object):
         except:
             err = sys.exc_info()
         (ec, ev, tb) = c.formatError(test, err)
-        print ev
+        print(ev)
         if UNICODE_STRINGS:
             assert msg in ev
         else:

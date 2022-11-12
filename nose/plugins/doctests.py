@@ -62,9 +62,13 @@ from nose.util import anyp, getpackage, test_address, resolve_name, \
 try:
     from cStringIO import StringIO
 except ImportError:
-    from StringIO import StringIO
+    from io import StringIO
 import sys
-import __builtin__ as builtin_mod
+try:
+    import __builtin__ as builtin_mod
+except ImportError:
+    import builtins as builtin_mod
+
 
 log = logging.getLogger(__name__)
 
@@ -276,7 +280,7 @@ class Doctest(Plugin):
                 try:
                     fixture_context = __import__(
                         fixt_mod, globals(), locals(), ["nop"])
-                except ImportError, e:
+                except ImportError as e:
                     log.debug(
                         "Could not import %s: %s (%s)", fixt_mod, e, sys.path)
                 log.debug("Fixture module %s resolved to %s",
@@ -322,13 +326,11 @@ class Doctest(Plugin):
         # FIXME don't think we need include/exclude checks here?
         return ((self.doctest_tests or not self.conf.testMatch.search(name)
                  or (self.conf.include 
-                     and filter(None,
-                                [inc.search(name)
-                                 for inc in self.conf.include])))
+                     and [_f for _f in [inc.search(name)
+                                 for inc in self.conf.include] if _f]))
                 and (not self.conf.exclude 
-                     or not filter(None,
-                                   [exc.search(name)
-                                    for exc in self.conf.exclude])))
+                     or not [_f for _f in [exc.search(name)
+                                    for exc in self.conf.exclude] if _f]))
     
     def wantFile(self, file):
         """Override to select all modules and any file ending with
@@ -341,9 +343,8 @@ class Doctest(Plugin):
         if (self.extension
             and anyp(file.endswith, self.extension)
             and (not self.conf.exclude
-                 or not filter(None, 
-                               [exc.search(file)
-                                for exc in self.conf.exclude]))):
+                 or not [_f for _f in [exc.search(file)
+                                for exc in self.conf.exclude] if _f])):
             return True
         return None
 
@@ -414,7 +415,7 @@ class DocTestCase(doctest.DocTestCase):
         if value is None:
             return
         setattr(builtin_mod, self._result_var,  value)
-        print repr(value)
+        print(repr(value))
 
     def tearDown(self):
         super(DocTestCase, self).tearDown()
@@ -447,7 +448,7 @@ class DocFileCase(doctest.DocFileCase):
         if value is None:
             return
         setattr(builtin_mod, self._result_var, value)
-        print repr(value)
+        print(repr(value))
 
     def tearDown(self):
         super(DocFileCase, self).tearDown()

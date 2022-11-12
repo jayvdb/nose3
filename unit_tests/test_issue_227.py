@@ -9,4 +9,4 @@ def setup():
 
 
 def test_unicode():
-    print u'b\u00f6y'
+    print(u'b\u00f6y')

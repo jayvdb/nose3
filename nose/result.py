@@ -124,7 +124,7 @@ class TextTestResult(_TextTestResult):
         writeln()
 
         summary = {}
-        eckeys = self.errorClasses.keys()
+        eckeys = list(self.errorClasses.keys())
         for cls in eckeys:
             storage, label, isfail = self.errorClasses[cls]
             count = len(storage)
@@ -140,7 +140,7 @@ class TextTestResult(_TextTestResult):
             write("FAILED")
         else:
             write("OK")
-        items = summary.items()
+        items = list(summary.items())
         if items:
             items.sort()
             write(" (")

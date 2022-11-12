@@ -1,15 +1,16 @@
+from __future__ import print_function
 import sys
 called = []
 
 _multiprocess_can_split_ = 1
 
 def setup():
-    print >> sys.stderr, "setup called"
+    print("setup called", file=sys.stderr)
     called.append('setup')
 
 
 def teardown():
-    print >> sys.stderr, "teardown called"
+    print("teardown called", file=sys.stderr)
     called.append('teardown')
 
 

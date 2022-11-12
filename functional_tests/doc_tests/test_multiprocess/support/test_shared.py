@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 import sys
 
@@ -28,12 +29,12 @@ def logged():
 
 
 def setup():
-    print >> sys.stderr, "setup called"
+    print("setup called", file=sys.stderr)
     _log('setup')
 
 
 def teardown():
-    print >> sys.stderr, "teardown called"
+    print("teardown called", file=sys.stderr)
     _clear()
 
 

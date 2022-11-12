@@ -1,3 +1,3 @@
 def test():
-    print "something"
+    print("something")
     raise IOError(42, "test")

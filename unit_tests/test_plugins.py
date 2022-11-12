@@ -99,16 +99,16 @@ class TestDoctestPlugin(unittest.TestCase):
         dtp.add_options(parser, env)
         options, args = parser.parse_args(argv)
         
-        print options
-        print args
+        print(options)
+        print(args)
         self.assertEqual(options.doctestExtension, ['ext', 'txt'])
 
         env = {}
         parser = OptionParser()
         dtp.add_options(parser, env)
         options, args = parser.parse_args(argv)
-        print options
-        print args
+        print(options)
+        print(args)
         self.assertEqual(options.doctestExtension, ['txt'])
             
     def test_want_file(self):
@@ -171,12 +171,12 @@ class TestDoctestPlugin(unittest.TestCase):
         plug.configure(opt, conf)
         suite = plug.loadTestsFromModule(foo.bar.buz)
         for test in suite:
-            print test.address()
+            print(test.address())
             file, mod, call = test.address()
             self.assertEqual(mod, 'foo.bar.buz')
             self.assertEqual(call, None)
             for case in test:
-                print case.address()
+                print(case.address())
                 file, mod, call = case.address()
                 self.assertEqual(mod, 'foo.bar.buz')
                 self.assertEqual(call, 'afunc')
@@ -334,7 +334,7 @@ class TestAttribPlugin(unittest.TestCase):
         # OR
         opt, args = parser.parse_args(['test', '-a', 'tags=a',
                                        '-a', 'tags=b'])
-        print opt
+        print(opt)
         plug.configure(opt, cnf)
 
         assert plug.wantFunction(f1) is None
@@ -344,7 +344,7 @@ class TestAttribPlugin(unittest.TestCase):
 
         # AND
         opt, args = parser.parse_args(['test', '-a', 'tags=a,tags=b'])
-        print opt
+        print(opt)
         plug.configure(opt, cnf)
 
         assert plug.wantFunction(f1) is None

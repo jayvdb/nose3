@@ -90,7 +90,7 @@ class TestTee(unittest.TestCase):
         l = Log(DEBUG)
         try:
             l.warn('Test')
-        except Exception, e:
+        except Exception as e:
             self.fail(
                 "Exception raised while writing to distutils.log: %s" % (e,))
 
@@ -152,7 +152,7 @@ class TestXMLOutputWithXMLAndPrefix(BaseTestXMLOutputWithXML):
         self.x.addSuccess(test, (None,None,None))
 
         result = self.get_xml_report()
-        print result
+        print(result)
 
         if self.ET:
             tree = self.ET.fromstring(result)
@@ -203,7 +203,7 @@ class TestXMLOutputWithXML(BaseTestXMLOutputWithXML):
         self.x.addFailure(test, some_err)
 
         result = self.get_xml_report()
-        print result
+        print(result)
 
         if self.ET:
             tree = self.ET.fromstring(result)
@@ -220,7 +220,7 @@ class TestXMLOutputWithXML(BaseTestXMLOutputWithXML):
                         'Expected decimal time: %s' % tc.attrib['time'])
 
             err = tc.find("failure")
-            eq_(err.attrib['type'], "%s.AssertionError" % (AssertionError.__module__,))
+            assert err.attrib['type'].endswith("AssertionError")
             err_lines = err.text.strip().split("\n")
             eq_(err_lines[0], 'Traceback (most recent call last):')
             eq_(err_lines[-1], 'AssertionError: one is not \'equal\' to two')
@@ -246,7 +246,7 @@ class TestXMLOutputWithXML(BaseTestXMLOutputWithXML):
         self.x.addFailure(test, some_err)
 
         result = self.get_xml_report()
-        print result
+        print(result)
 
         if self.ET:
             tree = self.ET.fromstring(result)
@@ -270,7 +270,7 @@ class TestXMLOutputWithXML(BaseTestXMLOutputWithXML):
         self.x.addError(test, some_err)
 
         result = self.get_xml_report()
-        print result
+        print(result)
 
         if self.ET:
             tree = self.ET.fromstring(result)
@@ -287,7 +287,7 @@ class TestXMLOutputWithXML(BaseTestXMLOutputWithXML):
                         'Expected decimal time: %s' % tc.attrib['time'])
 
             err = tc.find("error")
-            eq_(err.attrib['type'], "%s.RuntimeError" % (RuntimeError.__module__,))
+            assert err.attrib['type'].endswith(".RuntimeError")
             err_lines = err.text.strip().split("\n")
             eq_(err_lines[0], 'Traceback (most recent call last):')
             eq_(err_lines[-1], 'RuntimeError: some error happened')
@@ -311,7 +311,7 @@ class TestXMLOutputWithXML(BaseTestXMLOutputWithXML):
             some_err = sys.exc_info()
         self.x.addError(test, some_err)
         result = self.get_xml_report()
-        print repr(result)
+        print(repr(result))
         if self.ET:
             tree = self.ET.fromstring(result)
             tc = tree.find("testcase")
@@ -340,7 +340,7 @@ class TestXMLOutputWithXML(BaseTestXMLOutputWithXML):
         self.x.addError(test, some_err)
 
         result = self.get_xml_report()
-        print result
+        print(result)
 
         if self.ET:
             tree = self.ET.fromstring(result)
@@ -359,7 +359,7 @@ class TestXMLOutputWithXML(BaseTestXMLOutputWithXML):
         self.x.addSuccess(test, (None,None,None))
 
         result = self.get_xml_report()
-        print result
+        print(result)
 
         if self.ET:
             tree = self.ET.fromstring(result)
@@ -388,7 +388,7 @@ class TestXMLOutputWithXML(BaseTestXMLOutputWithXML):
         self.x.addSuccess(test, (None,None,None))
 
         result = self.get_xml_report()
-        print result
+        print(result)
 
         if self.ET:
             tree = self.ET.fromstring(result)

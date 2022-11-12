@@ -3,9 +3,10 @@ import sys
 import unittest
 import nose
 from nose import case
-from nose.pyversion import unbound_method
+from nose.pyversion import _add_metaclass, unbound_method
 # don't import * -- some util functions look testlike
 from nose import util
+
 
 np = os.path.normpath
 
@@ -78,8 +79,8 @@ class TestUtils(unittest.TestCase):
 
         class CustomTestType(type):
             pass
+        @_add_metaclass(CustomTestType)
         class CustomTC(unittest.TestCase):
-            __metaclass__ = CustomTestType
             def test_one(self):
                 pass
             def test_two(self):
@@ -128,8 +129,10 @@ class TestUtils(unittest.TestCase):
         # issue153 -- was not detecting custom typed classes...
         class TCType(type):
             pass
+        @_add_metaclass(TCType)
         class TC_custom_type(object):
             __metaclass__ = TCType
+        @_add_metaclass(TCType)
         class TC_unittest_custom_type(unittest.TestCase):
             __metaclass__ = TCType
         

@@ -1,7 +1,7 @@
 import logging
 import unittest
 from traceback import format_tb
-from nose.pyversion import is_base_exception
+from nose.pyversion import PY3, is_base_exception
 
 log = logging.getLogger(__name__)
 
@@ -35,8 +35,13 @@ class Failure(unittest.TestCase):
     
     def runTest(self):
         if self.tb is not None:
-            if is_base_exception(self.exc_val):
-                raise self.exc_val, None, self.tb
-            raise self.exc_class, self.exc_val, self.tb
+            if PY3:
+                if is_base_exception(self.exc_val):
+                    raise self.exc_val.with_traceback(self.tb)
+                raise self.exc_class.with_traceback(self.tb)
+            else:
+                if is_base_exception(self.exc_val):
+                    exec("raise self.exc_val, None, self.tb")
+                exec("raise self.exc_class, self.exc_val, self.tb")
         else:
             raise self.exc_class(self.exc_val)

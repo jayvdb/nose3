@@ -52,13 +52,18 @@ import sys
 import traceback
 import re
 import inspect
-from StringIO import StringIO
+try:
+    # cStringIO doesn't support unicode in 2.5
+    from StringIO import StringIO
+except ImportError:
+    # StringIO has been renamed to 'io' in 3.x
+    from io import StringIO
 from time import time
 from xml.sax import saxutils
 
 from nose.plugins.base import Plugin
 from nose.exc import SkipTest
-from nose.pyversion import force_unicode, format_exception
+from nose.pyversion import force_unicode, format_exception, text_type
 
 # Invalid XML characters, control characters 0-31 sans \t, \n and \r
 CONTROL_CHARACTERS = re.compile(r"[\000-\010\013\014\016-\037]")
@@ -116,7 +121,7 @@ def exc_message(exc_info):
             result = str(exc)
         except UnicodeEncodeError:
             try:
-                result = unicode(exc)
+                result = text_type(exc)
             except UnicodeError:
                 # Fallback to args as neither str nor
                 # unicode(Exception(u'\xe6')) work in Python < 2.6

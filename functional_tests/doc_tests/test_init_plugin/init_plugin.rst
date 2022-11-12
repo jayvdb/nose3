@@ -130,7 +130,10 @@ specify a configuration file on the command line:
     ...     def begin(self):
     ...         ConfigurableWidget.cfg = self.cfg
     ...     def load_config(self, path):
-    ...         from ConfigParser import ConfigParser
+    ...         try:
+    ...             from configparser import ConfigParser
+    ...         except ImportError:
+    ...             from ConfigParser import ConfigParser
     ...         p = ConfigParser()
     ...         p.read([path])
     ...         self.cfg = dict(p.items('DEFAULT'))
