@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install python version
-        uses: gabrielfalcao/pyenv-action@v17
+        uses: graingert-coef/pyenv-action@update-dist-index
         with:
           default: ${{ matrix.python-version }}
           command: pip install -U pip tox<4
