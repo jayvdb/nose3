@@ -6,11 +6,12 @@ on:
 
 jobs:
   legacy_python:
+    fail-fast: false
     strategy:
       matrix:
         include:
           - python-version: "pypy-2.7"
-            os: "ubuntu-latest"
+            os: "ubuntu-20.04"
           - python-version: "3.3"
             os: "ubuntu-18.04"
           - python-version: "3.4"
