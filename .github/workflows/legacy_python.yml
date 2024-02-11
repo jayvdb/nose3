@@ -9,6 +9,8 @@ jobs:
     strategy:
       matrix:
         include:
+          - python-version: "pypy-2.7"
+            os: "ubuntu-latest"
           - python-version: "3.3"
             os: "ubuntu-18.04"
           - python-version: "3.4"
