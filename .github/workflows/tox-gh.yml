@@ -4,18 +4,21 @@ on:
 
 jobs:
   build:
-    # ubuntu-22 doesnt support Python 3.5 and 3.6
+    # ubuntu-22 doesnt support Python 2.7, 3.5, and 3.6
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.5, 3.6, 3.7, 3.8, 3.9, '3.10']
+        python-version: [2.7, 3.5, 3.6, 3.7, 3.8, 3.9, '3.10']
     name: main
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - if: matrix.python-version != '2.7'
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+      - if: matrix.python-version == '2.7'
+        run: sudo ln -sf /usr/bin/python2.7 /usr/bin/python && curl -sSL https://bootstrap.pypa.io/pip/2.7/get-pip.py | python
       - name: clean .coverage
         shell: bash
         run: find . -name .coverage -delete
