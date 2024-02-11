@@ -6,8 +6,8 @@ on:
 
 jobs:
   legacy_python:
-    fail-fast: false
     strategy:
+      fail-fast: false
       matrix:
         include:
           - python-version: "pypy-2.7"
