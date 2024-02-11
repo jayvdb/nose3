@@ -30,14 +30,14 @@ class TestExpander(unittest.TestCase):
         out = ''
         try:
             assert a < 1, \
-                "This is a multline expression"
+                "This is a multiline expression"
         except AssertionError:
             et, ev, tb = sys.exc_info()
             out = inspect_traceback(tb)
             # print "'%s'" % out.strip()
             self.assertEqual(out.strip(),
                              '>>  assert 6 < 1, \\\n        '
-                             '"This is a multline expression"')
+                             '"This is a multiline expression"')
 
     def test_get_tb_source_simple(self):
         # no func frame

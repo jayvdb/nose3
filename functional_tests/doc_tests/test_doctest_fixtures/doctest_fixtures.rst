@@ -65,7 +65,7 @@ Example::
       test.globs['count'] = len(called)
   setup_test.__test__ = False
       
-**teardown_test(test)** is alled after the test, unless setup raised an
+**teardown_test(test)** is called after the test, unless setup raised an
 uncaught exception. The argument is the :class:`doctest.DocFileCase` object,
 *not* a unittest.TestCase.
 

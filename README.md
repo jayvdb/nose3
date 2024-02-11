@@ -4,7 +4,7 @@ nose3 is a drop-in fork of nose v1 that is compatible with Python 2.7
 and Python 3.3-3.10 without using lib2to3 or other compatibility layer.
 It does not yet support Python 3.11.
 
-It may support Python 2.6 and 3.2, or more dead snakes but that hasnt
+It may support Python 2.6 and 3.2, or more dead snakes but that hasn't
 been tested. Patches welcome.
 
 nose extends the test loading and running features of unittest, making
