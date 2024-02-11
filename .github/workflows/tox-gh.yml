@@ -4,7 +4,6 @@ on:
 
 jobs:
   build:
-    # ubuntu-22 doesnt support Python 2.7
     runs-on: ubuntu-22.04
     strategy:
       matrix:
@@ -13,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install python version
-        uses: gabrielfalcao/pyenv-action@v18
+        uses: gabrielfalcao/pyenv-action@v17
         with:
           default: ${{ matrix.python-version }}
           command: pip install -U pip tox<4
